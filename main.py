@@ -81,7 +81,29 @@ def simulate_electrical_network(data: SimulationRequest):
             if neighbor_id not in energized_nodes:
                 energized_nodes.add(neighbor_id)
                 queue.append(neighbor_id)
+ground_queue = []
+    grounded_nodes = set()
+    grounded_edges = set()
 
+    # Buscamos todas las tierras conectadas
+    for n in data.nodes:
+        if n.type == 'ground' and n.state == 'closed':
+            ground_queue.append(n.id)
+            grounded_nodes.add(n.id)
+
+    while ground_queue:
+        curr_id = ground_queue.pop(0)
+        curr_node = nodes_dict[curr_id]
+
+        # La tierra SÍ pasa por los interruptores cerrados, pero se detiene si están abiertos
+        if curr_node.type in ['breaker', 'disconnector', 'fuse'] and curr_node.state == 'open':
+            continue
+
+        for neighbor_id, edge_id in adj[curr_id]:
+            grounded_edges.add(edge_id)
+            if neighbor_id not in grounded_nodes:
+                grounded_nodes.add(neighbor_id)
+                ground_queue.append(neighbor_id)
     # 🛡️ VERIFICACIÓN LOTO
     closed_grounds = any(n.type == 'ground' and n.state == 'closed' for n in data.nodes)
     if closed_grounds and not has_fault and len(energized_nodes) <= 1:
