@@ -115,6 +115,7 @@ ground_queue = []
     return {
         "energizedNodes": list(energized_nodes),
         "energizedEdges": list(energized_edges),
+        "groundedEdges": list(grounded_edges),
         "hasFault": has_fault,
         "groundVerified": ground_verified,
         "totalAmps": round(total_amps, 2)
